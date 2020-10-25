@@ -8,7 +8,7 @@
   "license": "MIT",
   "private": false,
   "scripts": {
-    "build": "webpack",
+    "build": "rm -rf dist && webpack",
     "test": "jest"
   },
   "devDependencies": {

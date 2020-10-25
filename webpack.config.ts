@@ -9,7 +9,6 @@ const config: Configuration = {
       {
         test: /\.ts$/,
         use: 'ts-loader',
-        exclude: /node_modules/,
       },
     ],
   },
@@ -20,6 +19,7 @@ const config: Configuration = {
     filename: 'index.js',
     path: path.resolve(__dirname, 'dist'),
   },
+  devtool: 'source-map',
 };
 
 export default config;
