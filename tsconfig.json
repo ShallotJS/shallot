@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    "declaration": true,
+    "lib": ["ESNext"],
+    "module": "CommonJS",
+    "moduleResolution": "node",
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "sourceMap": true,
+    "noEmit": false,
+    "esModuleInterop": true,
+    "strict": true,
+    "skipLibCheck": true,
+    "target": "ES5",
+    "outDir": "dist",
+    "baseUrl": "./src"
+  },
+  "exclude": ["node_modules", "dist", "tests", "webpack.config.ts", "jest.config.ts"],
+  "include": ["src"]
+}
