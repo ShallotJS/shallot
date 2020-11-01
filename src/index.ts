@@ -1,3 +1,3 @@
-export const dummyFunction = (): number => {
-  return 0;
-};
+import ShallotAWS from './aws';
+
+export { ShallotAWS };

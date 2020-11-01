@@ -1,7 +1,9 @@
-import 'ts-jest';
+import { test, describe, jest, expect } from '@jest/globals';
 
-import { dummyFunction } from '../src/index';
+import { ShallotAWS } from '../src';
 
-test('Dummy test', () => {
-  expect(dummyFunction()).toEqual(0);
+describe('ShallotAWS', () => {
+  test('Empty Middleware', async () => {
+    expect(ShallotAWS(jest.fn()) instanceof Function);
+  });
 });
