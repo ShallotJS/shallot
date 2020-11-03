@@ -5,7 +5,7 @@ interface ShallotMiddleware<TOptions = Record<string, unknown>> {
 }
 
 interface ShallotHandler extends Handler {
-  (handler: Handler): ShallotHandler;
+  (event: unknown, context: unknown, callback: unknown): ShallotHandler;
   use: <TOptions = Record<string, unknown>>(
     middleware: ShallotMiddleware<TOptions>
   ) => ShallotHandler;
@@ -26,8 +26,7 @@ function ShallotAWS(_handler: Handler): ShallotHandler {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  shallotHandler.use = (_middleware: ShallotMiddleware) =>
-    shallotHandler as ShallotHandler;
+  shallotHandler.use = (_middleware: ShallotMiddleware) => shallotHandler;
 
   return shallotHandler as ShallotHandler;
 }
