@@ -69,7 +69,6 @@ function ShallotAWS(handler: Handler): ShallotHandler {
     finally: [],
   } as ShallotHandler['__middlewares'];
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   shallotHandler.use = (middleware: ShallotMiddleware) => {
     if (middleware.before != null) {
       shallotHandler.__middlewares.before.push(middleware.before);
