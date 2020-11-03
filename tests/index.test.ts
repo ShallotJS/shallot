@@ -4,6 +4,7 @@ import { ShallotAWS } from '../src';
 
 describe('ShallotAWS', () => {
   test('Empty Middleware', async () => {
-    expect(ShallotAWS(jest.fn()) instanceof Function);
+    const handler = ShallotAWS(jest.fn()).use(jest.fn());
+    expect(handler instanceof Function);
   });
 });
