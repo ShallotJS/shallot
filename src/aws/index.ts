@@ -1,10 +1,10 @@
 import type { Callback, Context, Handler } from 'aws-lambda';
 
 interface ShallotMiddlewareHandler {
-  (handler: ShallotHandler, context: unknown): Promise<void>;
+  (handler: ShallotHandler): Promise<void>;
 }
 interface ShallotMiddleware<TOptions = Record<string, unknown>> {
-  (handler: ShallotHandler, options?: TOptions): void;
+  (options?: TOptions): void;
   before?: ShallotMiddlewareHandler;
   after?: ShallotMiddlewareHandler;
   onError?: ShallotMiddlewareHandler;
@@ -22,7 +22,7 @@ interface ShallotHandler extends Handler {
     onError: ShallotMiddlewareHandler[];
     finally: ShallotMiddlewareHandler[];
   };
-  error: Error;
+  __error: Error;
   event: unknown;
   context: Context;
   callback: Callback<unknown>;
@@ -38,25 +38,30 @@ function ShallotAWS(handler: Handler): ShallotHandler {
     this.event = event;
     this.context = context;
     this.callback = callback;
+
     try {
       this.__middlewares.before.forEach((middlewareFunction) => {
-        middlewareFunction(this, context);
+        middlewareFunction(this);
       });
 
       handler(this.event, this.context, this.callback);
 
       this.__middlewares.after.forEach((middlewareFunction) => {
-        middlewareFunction(this, context);
+        middlewareFunction(this);
       });
-    } catch (error) {
-      this.error = error;
-      this.__middlewares.onError.forEach((middlewareFunction) => {
-        middlewareFunction(this, context);
-      });
+    } catch (error1) {
+      try {
+        this.__error = error1;
+        this.__middlewares.onError.forEach((middlewareFunction) => {
+          middlewareFunction(this);
+        });
+      } catch (error2) {
+        this.__error = error2;
+      }
     }
 
     this.__middlewares.finally.forEach((middlewareFunction) => {
-      middlewareFunction(this, context);
+      middlewareFunction(this);
     });
 
     return this;
