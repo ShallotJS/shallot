@@ -1,78 +1,104 @@
 import type { Callback, Context, Handler } from 'aws-lambda';
 
-interface ShallotRequest {
-  event: unknown;
+type TCallback = Callback<unknown>;
+
+type UnknownObject = Record<string | number | symbol, unknown>;
+
+interface ShallotRequest<
+  TEvent = unknown,
+  TResult extends UnknownObject = UnknownObject
+> {
+  event: TEvent;
   context: Context;
-  callback: Callback<unknown>;
-  response: unknown;
+  callback: TCallback;
+  response?: TResult | void;
   error?: Error;
 }
 
-interface ShallotMiddlewareHandler {
-  (request: ShallotRequest): Promise<void>;
+interface ShallotMiddlewareHandler<
+  TEvent = unknown,
+  TResult extends UnknownObject = UnknownObject
+> {
+  (request: ShallotRequest<TEvent, TResult>): Promise<void>;
 }
 
-interface ShallotMiddleware<TOptions = Record<string, unknown>> {
-  (options?: TOptions): void;
-  before?: ShallotMiddlewareHandler;
-  after?: ShallotMiddlewareHandler;
-  onError?: ShallotMiddlewareHandler;
-  finally?: ShallotMiddlewareHandler;
+interface ShallotMiddleware<
+  TEvent = unknown,
+  TResult extends UnknownObject = UnknownObject,
+  TConfig extends UnknownObject = UnknownObject
+> {
+  (options?: TConfig): void;
+  before?: ShallotMiddlewareHandler<TEvent, TResult>;
+  after?: ShallotMiddlewareHandler<TEvent, TResult>;
+  onError?: ShallotMiddlewareHandler<TEvent, TResult>;
+  finally?: ShallotMiddlewareHandler<TEvent, TResult>;
 }
 
-interface ShallotHandler extends Handler {
-  (event: unknown, context: Context, callback: unknown): Promise<any>;
-  use: <TOptions = Record<string, unknown>>(
-    middleware: ShallotMiddleware<TOptions>
-  ) => ShallotHandler;
+interface ShallotHandler<TEvent = unknown, TResult extends UnknownObject = UnknownObject>
+  extends Handler<TEvent, TResult> {
+  (event: TEvent, context: Context, callback: TCallback): Promise<TResult>;
+  use: <TConfig extends UnknownObject>(
+    middleware: ShallotMiddleware<TEvent, TResult, TConfig>
+  ) => ShallotHandler<TEvent, TResult>;
   __middlewares: {
-    before: ShallotMiddlewareHandler[];
-    after: ShallotMiddlewareHandler[];
-    onError: ShallotMiddlewareHandler[];
-    finally: ShallotMiddlewareHandler[];
+    before: ShallotMiddlewareHandler<TEvent, TResult>[];
+    after: ShallotMiddlewareHandler<TEvent, TResult>[];
+    onError: ShallotMiddlewareHandler<TEvent, TResult>[];
+    finally: ShallotMiddlewareHandler<TEvent, TResult>[];
   };
 }
 
-const executeMiddlewaresInChain = async (
-  request: ShallotRequest,
-  middlewares: ShallotMiddlewareHandler[]
+const executeMiddlewaresInChain = async <
+  TEvent = unknown,
+  TResult extends UnknownObject = UnknownObject
+>(
+  request: ShallotRequest<TEvent, TResult>,
+  middlewares: ShallotMiddlewareHandler<TEvent, TResult>[]
 ): Promise<void> => {
   for (const middleware of middlewares) {
     await middleware(request);
   }
 };
 
-function ShallotAWS(handler: Handler): ShallotHandler {
+function ShallotAWS<TEvent = unknown, TResult extends UnknownObject = UnknownObject>(
+  handler: Handler<TEvent, TResult>
+): ShallotHandler<TEvent, TResult> {
   async function shallotHandler(
-    this: ShallotHandler,
-    event: unknown,
+    this: ShallotHandler<TEvent, TResult>,
+    event: TEvent,
     context: Context,
-    callback: Callback<unknown>
+    callback: TCallback
   ) {
-    const request: ShallotRequest = {
+    const request: ShallotRequest<TEvent, TResult> = {
       event,
       context,
       callback,
-      response: null,
+      response: undefined,
       error: undefined,
     };
 
     try {
-      await executeMiddlewaresInChain(request, this.__middlewares.before);
+      await executeMiddlewaresInChain<TEvent, TResult>(
+        request,
+        this.__middlewares.before
+      );
 
       request.response = await handler(request.event, request.context, request.callback);
 
-      await executeMiddlewaresInChain(request, this.__middlewares.after);
+      await executeMiddlewaresInChain<TEvent, TResult>(request, this.__middlewares.after);
     } catch (error1) {
       try {
         request.error = error1;
-        await executeMiddlewaresInChain(request, this.__middlewares.onError);
+        await executeMiddlewaresInChain<TEvent, TResult>(
+          request,
+          this.__middlewares.onError
+        );
       } catch (error2) {
         request.error = error2;
       }
     }
 
-    await executeMiddlewaresInChain(request, this.__middlewares.finally);
+    await executeMiddlewaresInChain<TEvent, TResult>(request, this.__middlewares.finally);
 
     return request.response;
   }
@@ -105,7 +131,7 @@ function ShallotAWS(handler: Handler): ShallotHandler {
     return shallotHandler;
   };
 
-  return shallotHandler as ShallotHandler;
+  return shallotHandler as ShallotHandler<TEvent, TResult>;
 }
 
 export default ShallotAWS;
