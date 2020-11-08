@@ -62,6 +62,16 @@ const executeMiddlewaresInChain = async <
   }
 };
 
+/**
+ * Shallot engine wrapper function for AWS Lambda handlers that
+ * should be exported and called by lambda.
+ *
+ * Follows the builder pattern with a `use` function to apply
+ * middlewares.
+ *
+ * @param handler the base lambda handler function
+ * @return this, the wrapped handler.
+ */
 function ShallotAWS<TEvent = unknown, TResult extends UnknownObject = UnknownObject>(
   handler: Handler<TEvent, TResult>
 ): ShallotHandler<TEvent, TResult> {
@@ -76,6 +86,7 @@ function ShallotAWS<TEvent = unknown, TResult extends UnknownObject = UnknownObj
     onError: [],
     finally: [],
   };
+
   const shallotHandler = async (event: TEvent, context: Context, callback: TCallback) => {
     const request: ShallotRequest<TEvent, TResult> = {
       event,
@@ -105,6 +116,15 @@ function ShallotAWS<TEvent = unknown, TResult extends UnknownObject = UnknownObj
     return request.response;
   };
 
+  /**
+   * Applies a middleware to the engine that will execute during
+   * runtime.
+   *
+   * Follows the builder pattern.
+   *
+   * @param middleware the middleware to apply
+   * @return the handler with middleware applied
+   */
   shallotHandler.use = (middleware: ShallotMiddleware) => {
     if (middleware.before != null) {
       middlewares.before.push(middleware.before);
