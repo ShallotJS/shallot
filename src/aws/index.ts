@@ -10,7 +10,6 @@ interface ShallotRequest<
 > {
   event: TEvent;
   context: Context;
-  callback: TCallback;
   response?: TResult | void;
   error?: Error;
 }
@@ -91,7 +90,6 @@ function ShallotAWS<TEvent = unknown, TResult extends UnknownObject = UnknownObj
     const request: ShallotRequest<TEvent, TResult> = {
       event,
       context,
-      callback,
       response: undefined,
       error: undefined,
     };
@@ -99,7 +97,7 @@ function ShallotAWS<TEvent = unknown, TResult extends UnknownObject = UnknownObj
     try {
       await executeMiddlewaresInChain<TEvent, TResult>(request, middlewares.before);
 
-      request.response = await handler(request.event, request.context, request.callback);
+      request.response = await handler(request.event, request.context, callback);
 
       await executeMiddlewaresInChain<TEvent, TResult>(request, middlewares.after);
     } catch (error) {
