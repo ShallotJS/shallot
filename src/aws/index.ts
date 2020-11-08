@@ -86,15 +86,15 @@ function ShallotAWS<TEvent = unknown, TResult extends UnknownObject = UnknownObj
       request.response = await handler(request.event, request.context, request.callback);
 
       await executeMiddlewaresInChain<TEvent, TResult>(request, this.__middlewares.after);
-    } catch (error1) {
+    } catch (error) {
       try {
-        request.error = error1;
+        request.error = error;
         await executeMiddlewaresInChain<TEvent, TResult>(
           request,
           this.__middlewares.onError
         );
-      } catch (error2) {
-        request.error = error2;
+      } catch (_) {
+        return request.response;
       }
     }
 
