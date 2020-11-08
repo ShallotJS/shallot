@@ -96,7 +96,7 @@ function ShallotAWS<TEvent = unknown, TResult extends UnknownObject = UnknownObj
         request.error = error;
         await executeMiddlewaresInChain<TEvent, TResult>(request, middlewares.onError);
       } catch (_) {
-        return request.response;
+        return request.error;
       }
     }
 
@@ -116,11 +116,11 @@ function ShallotAWS<TEvent = unknown, TResult extends UnknownObject = UnknownObj
     }
 
     if (middleware.onError != null) {
-      middlewares.after.push(middleware.onError);
+      middlewares.onError.push(middleware.onError);
     }
 
     if (middleware.finally != null) {
-      middlewares.after.push(middleware.finally);
+      middlewares.finally.push(middleware.finally);
     }
 
     return shallotHandler;
