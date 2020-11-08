@@ -1,6 +1,6 @@
 {
   "name": "shallot",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A robust middleware framework for Serverless REST APIs",
   "main": "dist/index.js",
   "repository": "https://github.com/ShallotJS/shallot.git",
