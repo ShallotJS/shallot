@@ -38,11 +38,7 @@ const executeMiddlewaresInChain = async (
   middlewares: ShallotMiddlewareHandler[]
 ): Promise<void> => {
   for (const middleware of middlewares) {
-    try {
-      await middleware(request);
-    } catch (err) {
-      throw new Error('UNIMPLEMENTED');
-    }
+    await middleware(request);
   }
 };
 
@@ -64,12 +60,7 @@ function ShallotAWS(handler: Handler): ShallotHandler {
     try {
       await executeMiddlewaresInChain(request, this.__middlewares.before);
 
-      request.response = await handler.call(
-        request,
-        request.event,
-        request.context,
-        request.callback
-      );
+      request.response = await handler(request.event, request.context, request.callback);
 
       await executeMiddlewaresInChain(request, this.__middlewares.after);
     } catch (error1) {
