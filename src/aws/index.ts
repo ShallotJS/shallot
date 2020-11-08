@@ -2,7 +2,7 @@ import type { Callback, Context, Handler } from 'aws-lambda';
 
 type TCallback = Callback<unknown>;
 
-type UnknownObject = Record<string | number | symbol, unknown>;
+type UnknownObject = Record<string | number | symbol, unknown> | string;
 
 interface ShallotRequest<
   TEvent = unknown,
@@ -15,37 +15,39 @@ interface ShallotRequest<
   error?: Error;
 }
 
-interface ShallotMiddlewareHandler<
+export interface ShallotMiddlewareHandler<
   TEvent = unknown,
   TResult extends UnknownObject = UnknownObject
 > {
   (request: ShallotRequest<TEvent, TResult>): Promise<void>;
 }
 
-interface ShallotMiddleware<
+export interface ShallotMiddleware<
   TEvent = unknown,
-  TResult extends UnknownObject = UnknownObject,
-  TConfig extends UnknownObject = UnknownObject
+  TResult extends UnknownObject = UnknownObject
 > {
-  (options?: TConfig): void;
   before?: ShallotMiddlewareHandler<TEvent, TResult>;
   after?: ShallotMiddlewareHandler<TEvent, TResult>;
   onError?: ShallotMiddlewareHandler<TEvent, TResult>;
   finally?: ShallotMiddlewareHandler<TEvent, TResult>;
 }
 
-interface ShallotHandler<TEvent = unknown, TResult extends UnknownObject = UnknownObject>
-  extends Handler<TEvent, TResult> {
+export interface ShallotMiddlewareWithOptions<
+  TEvent = unknown,
+  TResult extends UnknownObject = UnknownObject,
+  TConfig extends UnknownObject = UnknownObject
+> {
+  (options?: TConfig): ShallotMiddleware<TEvent, TResult>;
+}
+
+export interface ShallotHandler<
+  TEvent = unknown,
+  TResult extends UnknownObject = UnknownObject
+> extends Handler<TEvent, TResult> {
   (event: TEvent, context: Context, callback: TCallback): Promise<TResult>;
-  use: <TConfig extends UnknownObject>(
-    middleware: ShallotMiddleware<TEvent, TResult, TConfig>
+  use: (
+    middleware: ShallotMiddleware<TEvent, TResult>
   ) => ShallotHandler<TEvent, TResult>;
-  __middlewares: {
-    before: ShallotMiddlewareHandler<TEvent, TResult>[];
-    after: ShallotMiddlewareHandler<TEvent, TResult>[];
-    onError: ShallotMiddlewareHandler<TEvent, TResult>[];
-    finally: ShallotMiddlewareHandler<TEvent, TResult>[];
-  };
 }
 
 const executeMiddlewaresInChain = async <
@@ -63,12 +65,18 @@ const executeMiddlewaresInChain = async <
 function ShallotAWS<TEvent = unknown, TResult extends UnknownObject = UnknownObject>(
   handler: Handler<TEvent, TResult>
 ): ShallotHandler<TEvent, TResult> {
-  async function shallotHandler(
-    this: ShallotHandler<TEvent, TResult>,
-    event: TEvent,
-    context: Context,
-    callback: TCallback
-  ) {
+  const middlewares: {
+    before: ShallotMiddlewareHandler<TEvent, TResult>[];
+    after: ShallotMiddlewareHandler<TEvent, TResult>[];
+    onError: ShallotMiddlewareHandler<TEvent, TResult>[];
+    finally: ShallotMiddlewareHandler<TEvent, TResult>[];
+  } = {
+    before: [],
+    after: [],
+    onError: [],
+    finally: [],
+  };
+  const shallotHandler = async (event: TEvent, context: Context, callback: TCallback) => {
     const request: ShallotRequest<TEvent, TResult> = {
       event,
       context,
@@ -78,54 +86,41 @@ function ShallotAWS<TEvent = unknown, TResult extends UnknownObject = UnknownObj
     };
 
     try {
-      await executeMiddlewaresInChain<TEvent, TResult>(
-        request,
-        this.__middlewares.before
-      );
+      await executeMiddlewaresInChain<TEvent, TResult>(request, middlewares.before);
 
       request.response = await handler(request.event, request.context, request.callback);
 
-      await executeMiddlewaresInChain<TEvent, TResult>(request, this.__middlewares.after);
+      await executeMiddlewaresInChain<TEvent, TResult>(request, middlewares.after);
     } catch (error) {
       try {
         request.error = error;
-        await executeMiddlewaresInChain<TEvent, TResult>(
-          request,
-          this.__middlewares.onError
-        );
+        await executeMiddlewaresInChain<TEvent, TResult>(request, middlewares.onError);
       } catch (_) {
-        return request.response;
+        return request.error;
       }
     }
 
-    await executeMiddlewaresInChain<TEvent, TResult>(request, this.__middlewares.finally);
+    await executeMiddlewaresInChain<TEvent, TResult>(request, middlewares.finally);
 
     return request.response;
-  }
-
-  shallotHandler.__middlewares = {
-    before: [],
-    after: [],
-    onError: [],
-    finally: [],
-  } as ShallotHandler['__middlewares'];
+  };
 
   shallotHandler.use = (middleware: ShallotMiddleware) => {
     if (middleware.before != null) {
-      shallotHandler.__middlewares.before.push(middleware.before);
+      middlewares.before.push(middleware.before);
     }
 
     // after middlewares execute in reverse order
     if (middleware.after != null) {
-      shallotHandler.__middlewares.after.unshift(middleware.after);
+      middlewares.after.unshift(middleware.after);
     }
 
     if (middleware.onError != null) {
-      shallotHandler.__middlewares.after.push(middleware.onError);
+      middlewares.onError.push(middleware.onError);
     }
 
     if (middleware.finally != null) {
-      shallotHandler.__middlewares.after.push(middleware.finally);
+      middlewares.finally.push(middleware.finally);
     }
 
     return shallotHandler;
