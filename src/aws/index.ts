@@ -1,10 +1,19 @@
 import type { Callback, Context, Handler } from 'aws-lambda';
 
-interface ShallotMiddlewareHandler {
-  (handler: ShallotHandler, context: unknown): Promise<void>;
+interface ShallotRequest {
+  event: unknown;
+  context: Context;
+  callback: Callback<unknown>;
+  response: unknown;
+  error?: Error;
 }
+
+interface ShallotMiddlewareHandler {
+  (request: ShallotRequest): Promise<void>;
+}
+
 interface ShallotMiddleware<TOptions = Record<string, unknown>> {
-  (handler: ShallotHandler, options?: TOptions): void;
+  (options?: TOptions): void;
   before?: ShallotMiddlewareHandler;
   after?: ShallotMiddlewareHandler;
   onError?: ShallotMiddlewareHandler;
@@ -12,7 +21,7 @@ interface ShallotMiddleware<TOptions = Record<string, unknown>> {
 }
 
 interface ShallotHandler extends Handler {
-  (event: unknown, context: Context, callback: unknown): ShallotHandler;
+  (event: unknown, context: Context, callback: unknown): Promise<any>;
   use: <TOptions = Record<string, unknown>>(
     middleware: ShallotMiddleware<TOptions>
   ) => ShallotHandler;
@@ -22,44 +31,50 @@ interface ShallotHandler extends Handler {
     onError: ShallotMiddlewareHandler[];
     finally: ShallotMiddlewareHandler[];
   };
-  error: Error;
-  event: unknown;
-  context: Context;
-  callback: Callback<unknown>;
 }
 
+const executeMiddlewaresInChain = async (
+  request: ShallotRequest,
+  middlewares: ShallotMiddlewareHandler[]
+): Promise<void> => {
+  for (const middleware of middlewares) {
+    await middleware(request);
+  }
+};
+
 function ShallotAWS(handler: Handler): ShallotHandler {
-  function shallotHandler(
+  async function shallotHandler(
     this: ShallotHandler,
     event: unknown,
     context: Context,
     callback: Callback<unknown>
-  ): ShallotHandler {
-    this.event = event;
-    this.context = context;
-    this.callback = callback;
+  ) {
+    const request: ShallotRequest = {
+      event,
+      context,
+      callback,
+      response: null,
+      error: undefined,
+    };
+
     try {
-      this.__middlewares.before.forEach((middlewareFunction) => {
-        middlewareFunction(this, context);
-      });
+      await executeMiddlewaresInChain(request, this.__middlewares.before);
 
-      handler(this.event, this.context, this.callback);
+      request.response = await handler(request.event, request.context, request.callback);
 
-      this.__middlewares.after.forEach((middlewareFunction) => {
-        middlewareFunction(this, context);
-      });
-    } catch (error) {
-      this.error = error;
-      this.__middlewares.onError.forEach((middlewareFunction) => {
-        middlewareFunction(this, context);
-      });
+      await executeMiddlewaresInChain(request, this.__middlewares.after);
+    } catch (error1) {
+      try {
+        request.error = error1;
+        await executeMiddlewaresInChain(request, this.__middlewares.onError);
+      } catch (error2) {
+        request.error = error2;
+      }
     }
 
-    this.__middlewares.finally.forEach((middlewareFunction) => {
-      middlewareFunction(this, context);
-    });
+    await executeMiddlewaresInChain(request, this.__middlewares.finally);
 
-    return this;
+    return request.response;
   }
 
   shallotHandler.__middlewares = {
