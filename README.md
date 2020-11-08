@@ -48,8 +48,8 @@ export const handler = ShallotAWS(handler)
 
 ## How it Works
 
-[Middleware onion](https://middy.js.org/img/middy-middleware-engine.png)
-\*Artwork credit [Middy.js](https://middy.js.org/)
+![Middleware onion](https://middy.js.org/img/middy-middleware-engine.png)
+\*\*Artwork credit: [Middy.js](https://middy.js.org/)
 
 Middlewares are applied as layers that can execute before and after. This loosely
 can be analogized to an onion (and Serverless starts with an S) hence the name Shallot.
