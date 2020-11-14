@@ -1,6 +1,6 @@
 {
   "name": "shallot",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "A robust middleware framework for Serverless REST APIs",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
