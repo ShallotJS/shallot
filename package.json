@@ -1,8 +1,9 @@
 {
   "name": "shallot",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "A robust middleware framework for Serverless REST APIs",
   "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "repository": "https://github.com/ShallotJS/shallot.git",
   "author": "Bailey Tincher <bailey.tincher@btin.io>",
   "license": "MIT",
