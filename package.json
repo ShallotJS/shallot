@@ -1,7 +1,7 @@
 {
   "name": "shallot",
-  "version": "1.0.1",
-  "description": "A robust middleware framework for AWS Lambda Serverless functions",
+  "version": "1.0.3",
+  "description": "A robust middleware framework for Serverless REST APIs",
   "keywords": [
     "middleware",
     "aws",
@@ -12,6 +12,7 @@
     "middy"
   ],
   "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "repository": "https://github.com/ShallotJS/shallot.git",
   "author": "Bailey Tincher <bailey.tincher@btin.io>",
   "license": "MIT",
