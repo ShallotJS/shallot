@@ -13,8 +13,9 @@ interface TShallotErrorHandlerOptions extends Record<string, unknown> {
 }
 
 /**
- * Shallot middleware that parses and replaces the JSON body of HTTP request bodies.
- * Requires the Content-Type header to be properly set.
+ * Shallot middleware that catches "HTTP Errors" thrown by the
+ * http-errors npm module and returns the corresponding status
+ * code in the response.
  *
  * @param config optional object to pass config options
  */
