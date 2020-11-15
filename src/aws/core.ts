@@ -1,4 +1,5 @@
 import type { Callback, Context, Handler } from 'aws-lambda';
+import type { HttpError } from 'http-errors';
 
 type TCallback = Callback<unknown>;
 
@@ -12,7 +13,7 @@ interface ShallotRequest<
   event: TEvent;
   context: Context;
   response?: TResult | void;
-  error?: Error;
+  error?: Error | HttpError;
 }
 
 export interface ShallotMiddlewareHandler<

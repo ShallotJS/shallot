@@ -78,6 +78,16 @@ to the MSDN spec. https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS
 import { HTTPCors } from 'shallot/dist/aws';
 ```
 
+### http-error-handler
+
+Shallot middleware that catches "HTTP Errors" thrown by the
+http-errors npm module and returns the corresponding status
+code in the response.
+
+```javascript
+import { HTTPErrorHandler } from 'shallot/dist/aws';
+```
+
 ## Creating a Custom Middleware
 
 A middleware is an object that defines any of a `before`, `after`, `onError`, or `finally` block.

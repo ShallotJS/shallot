@@ -11,6 +11,8 @@ import { test, describe, jest, expect } from '@jest/globals';
 import { ShallotAWS } from '../src';
 import ShallotJSONBodyParser from '../src/aws/middlewares/http-json-body-parser';
 import ShallotHTTPCors from '../src/aws/middlewares/http-cors';
+import ShallotHTTPErrorHandler from '../src/aws/middlewares/http-error-handler';
+import HttpError from 'http-errors';
 
 describe('ShallotAWS Core', () => {
   const mockContext: Context = {
@@ -484,5 +486,77 @@ describe('CORS middleware', () => {
     const res = await wrappedHandler(mockEvent, mockContext, jest.fn());
 
     expect(res.headers).toMatchObject((await handlerWithResHeaders()).headers);
+  });
+});
+
+describe('http-error-handler middleware', () => {
+  const mockContext: Context = {
+    callbackWaitsForEmptyEventLoop: false,
+    functionName: '',
+    functionVersion: '',
+    invokedFunctionArn: '',
+    memoryLimitInMB: '',
+    awsRequestId: '',
+    logGroupName: '',
+    logStreamName: '',
+    getRemainingTimeInMillis: () => 0,
+    done: () => undefined,
+    fail: () => undefined,
+    succeed: () => undefined,
+  };
+
+  const mockHandlerWithHTTPError: Handler<
+    APIGatewayEvent,
+    APIGatewayProxyResult
+  > = async () => {
+    throw HttpError(400, 'Test error message');
+  };
+
+  test('Skips normal errors', async () => {
+    const mockHandlerWithError: Handler<
+      APIGatewayEvent,
+      APIGatewayProxyResult
+    > = async () => {
+      throw new Error('Test error');
+    };
+
+    const wrappedHandler = ShallotAWS(mockHandlerWithError).use(
+      ShallotHTTPErrorHandler()
+    );
+
+    const res = await wrappedHandler(
+      (undefined as unknown) as APIGatewayEvent,
+      mockContext,
+      jest.fn()
+    );
+    expect(res).not.toBeDefined();
+  });
+
+  test('Triggers from HTTPError', async () => {
+    const wrappedHandler = ShallotAWS(mockHandlerWithHTTPError).use(
+      ShallotHTTPErrorHandler({ logger: undefined })
+    );
+
+    const res = await wrappedHandler(
+      (undefined as unknown) as APIGatewayEvent,
+      mockContext,
+      jest.fn()
+    );
+    expect(res.statusCode).toBe(400);
+  });
+
+  test('Custom logger', async () => {
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
+    const logger = jest.fn(() => {});
+    const wrappedHandler = ShallotAWS(mockHandlerWithHTTPError).use(
+      ShallotHTTPErrorHandler({ logger })
+    );
+
+    await wrappedHandler(
+      (undefined as unknown) as APIGatewayEvent,
+      mockContext,
+      jest.fn()
+    );
+    expect(logger).toHaveBeenCalledTimes(1);
   });
 });
