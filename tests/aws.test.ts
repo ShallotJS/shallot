@@ -4,7 +4,7 @@ import type { APIGatewayEvent, Context, Handler } from 'aws-lambda';
 import { test, describe, jest, expect } from '@jest/globals';
 
 import { ShallotAWS } from '../src';
-import ShallotJSONBodyParser from '../src/aws/middlewares/json-body-parser';
+import ShallotJSONBodyParser from '../src/aws/middlewares/http-json-body-parser';
 
 describe('ShallotAWS Core', () => {
   const mockContext: Context = {

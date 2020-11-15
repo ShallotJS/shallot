@@ -30,7 +30,7 @@ const isJSONContentType = (requestHeaders: APIGatewayEvent['headers']): boolean 
  *
  * @param config optional object to pass config options
  */
-const ShallotJSONBodyParser: ShallotMiddlewareWithOptions<
+const ShallotHTTPJSONBodyParser: ShallotMiddlewareWithOptions<
   APIGatewayEvent,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   any,
@@ -52,4 +52,4 @@ const ShallotJSONBodyParser: ShallotMiddlewareWithOptions<
   },
 });
 
-export default ShallotJSONBodyParser;
+export default ShallotHTTPJSONBodyParser;

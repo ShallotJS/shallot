@@ -1,5 +1,5 @@
 import * as ShallotAWS from './core';
-import JSONBodyParser from './middlewares/json-body-parser';
+import HTTPJSONBodyParser from './middlewares/http-json-body-parser';
 
-export { ShallotAWS, JSONBodyParser };
+export { ShallotAWS, HTTPJSONBodyParser };
 export default ShallotAWS.default;
