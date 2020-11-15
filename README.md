@@ -58,6 +58,17 @@ The middlewares can modify the request context, response, or handle exceptions t
 to take care of common tasks. Canonical use cases include establishing database connections, parsing
 request bodies from json, and authenticating users.
 
+## Official Middlewares
+
+### http-json-body-parser
+
+Shallot middleware that parses and replaces the JSON body of HTTP request bodies.
+Requires the Content-Type header to be properly set.
+
+```javascript
+import { HTTPJSONBodyParser } from 'shallot/dist/aws';
+```
+
 ## Creating a Custom Middleware
 
 A middleware is an object that defines any of a `before`, `after`, `onError`, or `finally` block.
