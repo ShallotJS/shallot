@@ -4,7 +4,7 @@
  */
 
 import type { ShallotMiddlewareWithOptions } from '../core';
-import type { APIGatewayEvent } from 'aws-lambda';
+import type { APIGatewayEvent, APIGatewayProxyResult } from 'aws-lambda';
 
 import HttpError from 'http-errors';
 
@@ -20,14 +20,13 @@ interface TShallotErrorHandlerOptions extends Record<string, unknown> {
  */
 const ShallotHTTPErrorHandler: ShallotMiddlewareWithOptions<
   APIGatewayEvent,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  any,
+  APIGatewayProxyResult,
   TShallotErrorHandlerOptions
 > = (config) => ({
   onError: async (request) => {
     config = { logger: console.error, ...config };
 
-    if (request.error instanceof HttpError.Error) {
+    if (HttpError.isHttpError(request.error)) {
       if (config.logger != null) {
         config.logger(request.error.message);
       }
