@@ -3,17 +3,11 @@
  * https://github.com/middyjs/middy/tree/master/packages/http-json-body-parser
  */
 
-import type { ShallotMiddlewareWithOptions } from '..';
+import type { ShallotMiddlewareWithOptions } from '../core';
 import type { APIGatewayEvent } from 'aws-lambda';
 
 import ContentType from 'content-type';
 import HttpError from 'http-errors';
-
-interface IHTTPRequestEvent {
-  isBase64Encoded?: boolean;
-  body: string;
-  headers: Record<string | number | symbol, unknown>;
-}
 
 interface TShallotJSONBodyParserOptions extends Record<string, unknown> {
   /** A function that transforms the results. This function is called for each member of the object.
@@ -21,7 +15,7 @@ interface TShallotJSONBodyParserOptions extends Record<string, unknown> {
   reviver?: (key: string, value: unknown) => unknown;
 }
 
-const isJSONContentType = (requestHeaders: IHTTPRequestEvent['headers']): boolean => {
+const isJSONContentType = (requestHeaders: APIGatewayEvent['headers']): boolean => {
   const contentTypeString =
     requestHeaders['content-type'] ?? requestHeaders['Content-Type'];
   if (typeof contentTypeString !== 'string') return false;

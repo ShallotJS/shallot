@@ -1,4 +1,4 @@
-import type { ShallotMiddlewareHandler, ShallotMiddleware } from '../src/aws';
+import type { ShallotMiddlewareHandler, ShallotMiddleware } from '../src/aws/core';
 import type { APIGatewayEvent, Context, Handler } from 'aws-lambda';
 
 import { test, describe, jest, expect } from '@jest/globals';
