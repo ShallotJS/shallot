@@ -69,6 +69,15 @@ Requires the Content-Type header to be properly set.
 import { HTTPJSONBodyParser } from 'shallot/dist/aws';
 ```
 
+### http-cors
+
+Shallot middleware that handles the setting of response CORS headers according
+to the MSDN spec. https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS
+
+```javascript
+import { HTTPCors } from 'shallot/dist/aws';
+```
+
 ## Creating a Custom Middleware
 
 A middleware is an object that defines any of a `before`, `after`, `onError`, or `finally` block.
