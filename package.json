@@ -2,6 +2,15 @@
   "name": "shallot",
   "version": "1.0.3",
   "description": "A robust middleware framework for Serverless REST APIs",
+  "keywords": [
+    "middleware",
+    "aws",
+    "serverless",
+    "aws-lambda",
+    "lambda",
+    "typescript",
+    "middy"
+  ],
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "repository": "https://github.com/ShallotJS/shallot.git",
