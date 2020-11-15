@@ -599,7 +599,7 @@ describe('do-not-wait-for-empty-event-loop middleware', () => {
 
   test('after', async () => {
     const wrappedHandler = ShallotAWS(mockHandler).use(
-      ShallotDoNotWaitForEmptyEventLoop({ runAfter: true })
+      ShallotDoNotWaitForEmptyEventLoop({ runBefore: false, runAfter: true })
     );
 
     const mockContext: Context = {
@@ -656,5 +656,34 @@ describe('do-not-wait-for-empty-event-loop middleware', () => {
     );
 
     expect(mockContext.callbackWaitsForEmptyEventLoop).toBeFalsy();
+  });
+
+  test('never', async () => {
+    const wrappedHandler = ShallotAWS(mockHandler).use(
+      ShallotDoNotWaitForEmptyEventLoop((null as unknown) as undefined)
+    );
+
+    const mockContext: Context = {
+      callbackWaitsForEmptyEventLoop: true,
+      functionName: '',
+      functionVersion: '',
+      invokedFunctionArn: '',
+      memoryLimitInMB: '',
+      awsRequestId: '',
+      logGroupName: '',
+      logStreamName: '',
+      getRemainingTimeInMillis: () => 0,
+      done: () => undefined,
+      fail: () => undefined,
+      succeed: () => undefined,
+    };
+
+    await wrappedHandler(
+      (undefined as unknown) as APIGatewayEvent,
+      mockContext,
+      jest.fn()
+    );
+
+    expect(mockContext.callbackWaitsForEmptyEventLoop).toBeTruthy();
   });
 });
