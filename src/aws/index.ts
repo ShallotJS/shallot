@@ -2,7 +2,8 @@ import type { Callback, Context, Handler } from 'aws-lambda';
 
 type TCallback = Callback<unknown>;
 
-type UnknownObject = Record<string | number | symbol, unknown> | string;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type UnknownObject = Record<string | number | symbol, any> | string;
 
 interface ShallotRequest<
   TEvent = unknown,
