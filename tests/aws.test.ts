@@ -13,6 +13,7 @@ import ShallotJSONBodyParser from '../src/aws/middlewares/http-json-body-parser'
 import ShallotHTTPCors from '../src/aws/middlewares/http-cors';
 import ShallotHTTPErrorHandler from '../src/aws/middlewares/http-error-handler';
 import HttpError from 'http-errors';
+import ShallotDoNotWaitForEmptyEventLoop from '../src/aws/middlewares/do-not-wait-for-empty-event-loop';
 
 describe('ShallotAWS Core', () => {
   const mockContext: Context = {
@@ -558,5 +559,131 @@ describe('http-error-handler middleware', () => {
       jest.fn()
     );
     expect(logger).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('do-not-wait-for-empty-event-loop middleware', () => {
+  const mockHandler: Handler<APIGatewayEvent, APIGatewayProxyResult> = async () => ({
+    statusCode: 200,
+    body: '',
+  });
+
+  test('before', async () => {
+    const wrappedHandler = ShallotAWS(mockHandler).use(
+      ShallotDoNotWaitForEmptyEventLoop()
+    );
+
+    const mockContext: Context = {
+      callbackWaitsForEmptyEventLoop: true,
+      functionName: '',
+      functionVersion: '',
+      invokedFunctionArn: '',
+      memoryLimitInMB: '',
+      awsRequestId: '',
+      logGroupName: '',
+      logStreamName: '',
+      getRemainingTimeInMillis: () => 0,
+      done: () => undefined,
+      fail: () => undefined,
+      succeed: () => undefined,
+    };
+
+    await wrappedHandler(
+      (undefined as unknown) as APIGatewayEvent,
+      mockContext,
+      jest.fn()
+    );
+
+    expect(mockContext.callbackWaitsForEmptyEventLoop).toBeFalsy();
+  });
+
+  test('after', async () => {
+    const wrappedHandler = ShallotAWS(mockHandler).use(
+      ShallotDoNotWaitForEmptyEventLoop({ runBefore: false, runAfter: true })
+    );
+
+    const mockContext: Context = {
+      callbackWaitsForEmptyEventLoop: true,
+      functionName: '',
+      functionVersion: '',
+      invokedFunctionArn: '',
+      memoryLimitInMB: '',
+      awsRequestId: '',
+      logGroupName: '',
+      logStreamName: '',
+      getRemainingTimeInMillis: () => 0,
+      done: () => undefined,
+      fail: () => undefined,
+      succeed: () => undefined,
+    };
+
+    await wrappedHandler(
+      (undefined as unknown) as APIGatewayEvent,
+      mockContext,
+      jest.fn()
+    );
+
+    expect(mockContext.callbackWaitsForEmptyEventLoop).toBeFalsy();
+  });
+
+  test('onError', async () => {
+    const mockHandlerWithError: Handler<unknown, string> = async () => {
+      throw new Error();
+    };
+    const wrappedHandler = ShallotAWS(mockHandlerWithError).use(
+      ShallotDoNotWaitForEmptyEventLoop({ runOnError: true })
+    );
+
+    const mockContext: Context = {
+      callbackWaitsForEmptyEventLoop: true,
+      functionName: '',
+      functionVersion: '',
+      invokedFunctionArn: '',
+      memoryLimitInMB: '',
+      awsRequestId: '',
+      logGroupName: '',
+      logStreamName: '',
+      getRemainingTimeInMillis: () => 0,
+      done: () => undefined,
+      fail: () => undefined,
+      succeed: () => undefined,
+    };
+
+    await wrappedHandler(
+      (undefined as unknown) as APIGatewayEvent,
+      mockContext,
+      jest.fn()
+    );
+
+    expect(mockContext.callbackWaitsForEmptyEventLoop).toBeFalsy();
+  });
+
+  test('never', async () => {
+    const wrappedHandler = ShallotAWS(mockHandler).use(
+      ShallotDoNotWaitForEmptyEventLoop((null as unknown) as undefined)
+    );
+
+    const mockContext: Context = {
+      callbackWaitsForEmptyEventLoop: true,
+      functionName: '',
+      functionVersion: '',
+      invokedFunctionArn: '',
+      memoryLimitInMB: '',
+      awsRequestId: '',
+      logGroupName: '',
+      logStreamName: '',
+      getRemainingTimeInMillis: () => 0,
+      done: () => undefined,
+      fail: () => undefined,
+      succeed: () => undefined,
+    };
+
+    await wrappedHandler(
+      (undefined as unknown) as APIGatewayEvent,
+      mockContext,
+      jest.fn()
+    );
+
+    expect(mockContext.callbackWaitsForEmptyEventLoop).toBeTruthy();
   });
 });
