@@ -1,6 +1,6 @@
 /**
- * TypeScript + promises port of middy http-json-body-parser
- * https://github.com/middyjs/middy/tree/master/packages/http-json-body-parser
+ * TypeScript + promises port of middy http-error-handler
+ * https://github.com/middyjs/middy/tree/master/packages/http-error-handler
  */
 
 import type { ShallotMiddlewareWithOptions } from '../core';
