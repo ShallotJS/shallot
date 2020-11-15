@@ -32,10 +32,8 @@ const setHeaderIfNotExists = (
 const parseAllowedOrigin = (event: APIGatewayEvent, allowedOrigins: string[]): string => {
   const inboundOrigin = event.headers['Origin'] ?? event.headers['origin'];
 
-  if (allowedOrigins != null && allowedOrigins.length > 0) {
-    if (allowedOrigins.includes('*') || allowedOrigins.includes(inboundOrigin)) {
-      return inboundOrigin;
-    }
+  if (allowedOrigins.includes('*') || allowedOrigins.includes(inboundOrigin)) {
+    return inboundOrigin;
   }
 
   return allowedOrigins[0];
@@ -70,11 +68,9 @@ const ShallotHTTPCors: ShallotMiddlewareWithOptions<
         config.allowHeaders
       );
 
-      setHeaderIfNotExists(
-        request.response,
-        'Access-Control-Allow-Credentials',
-        config.credentials
-      );
+      if (config.credentials) {
+        setHeaderIfNotExists(request.response, 'Access-Control-Allow-Credentials', true);
+      }
 
       setHeaderIfNotExists(request.response, 'Access-Control-Max-Age', config.maxAge);
 
