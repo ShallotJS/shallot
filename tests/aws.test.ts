@@ -14,6 +14,7 @@ import ShallotHTTPCors from '../src/aws/middlewares/http-cors';
 import ShallotHTTPErrorHandler from '../src/aws/middlewares/http-error-handler';
 import HttpError from 'http-errors';
 import ShallotDoNotWaitForEmptyEventLoop from '../src/aws/middlewares/do-not-wait-for-empty-event-loop';
+import ShallotValidator from '../src/aws/middlewares/validator';
 
 describe('ShallotAWS Core', () => {
   const mockContext: Context = {
@@ -685,5 +686,95 @@ describe('do-not-wait-for-empty-event-loop middleware', () => {
     );
 
     expect(mockContext.callbackWaitsForEmptyEventLoop).toBeTruthy();
+  });
+});
+
+describe('validator middleware', () => {
+  const mockContext: Context = {
+    callbackWaitsForEmptyEventLoop: true,
+    functionName: '',
+    functionVersion: '',
+    invokedFunctionArn: '',
+    memoryLimitInMB: '',
+    awsRequestId: '',
+    logGroupName: '',
+    logStreamName: '',
+    getRemainingTimeInMillis: () => 0,
+    done: () => undefined,
+    fail: () => undefined,
+    succeed: () => undefined,
+  };
+
+  const mockHandler: Handler<APIGatewayEvent, APIGatewayProxyResult> = async () => ({
+    statusCode: 200,
+    body: '',
+  });
+
+  test('No schemas', async () => {
+    const wrappedHandler = ShallotAWS(mockHandler).use(ShallotValidator());
+
+    const res = await wrappedHandler(
+      (undefined as unknown) as APIGatewayEvent,
+      mockContext,
+      jest.fn()
+    );
+
+    expect(res).toBeDefined();
+  });
+
+  test('Valid schema', async () => {
+    const wrappedHandler = ShallotAWS(mockHandler).use(
+      ShallotValidator({ inputSchema: {}, outputSchema: {} })
+    );
+
+    const mockEvent = ({
+      body: { test: 'here' },
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    } as unknown) as APIGatewayEvent;
+    const res = await wrappedHandler(mockEvent, mockContext, jest.fn());
+
+    expect(res).toBeDefined();
+  });
+
+  test('Invalid input schema', async () => {
+    const wrappedHandler = ShallotAWS(mockHandler)
+      .use(ShallotHTTPErrorHandler({ logger: jest.fn() }))
+      .use(
+        ShallotValidator({
+          inputSchema: { type: 'object', required: ['test'] },
+        })
+      );
+
+    const mockEvent = ({
+      body: { test: 'here' },
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    } as unknown) as APIGatewayEvent;
+    const res = await wrappedHandler(mockEvent, mockContext, jest.fn());
+
+    expect(res).toBeDefined();
+  });
+
+  test('Invalid output schema', async () => {
+    const wrappedHandler = ShallotAWS(mockHandler)
+      .use(ShallotHTTPErrorHandler({ logger: jest.fn() }))
+      .use(
+        ShallotValidator({
+          outputSchema: { type: 'object', required: ['test'] },
+        })
+      );
+
+    const mockEvent = ({
+      body: { test: 'here' },
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    } as unknown) as APIGatewayEvent;
+    const res = await wrappedHandler(mockEvent, mockContext, jest.fn());
+
+    expect(res).toBeDefined();
   });
 });

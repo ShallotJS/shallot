@@ -3,6 +3,7 @@ import HTTPJSONBodyParser from './middlewares/http-json-body-parser';
 import HTTPCors from './middlewares/http-cors';
 import HTTPErrorHandler from './middlewares/http-error-handler';
 import DoNotWaitForEmptyEventLoop from './middlewares/do-not-wait-for-empty-event-loop';
+import Validator from './middlewares/validator';
 
 export {
   ShallotAWS,
@@ -10,5 +11,6 @@ export {
   HTTPCors,
   HTTPErrorHandler,
   DoNotWaitForEmptyEventLoop,
+  Validator,
 };
 export default ShallotAWS.default;
