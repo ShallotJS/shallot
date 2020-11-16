@@ -16,7 +16,7 @@ const disableEmptyEventLoopWait: ShallotMiddlewareHandler = async (request) => {
 };
 
 /**
- * Shallot middleware that enables/disables the AWS Lambda
+ * Shallot middleware that disables the AWS Lambda
  * event loop.
  *
  * @param config optional object to pass config options
