@@ -29,21 +29,29 @@ TypeScript support is out of the box so you do not need an additional types modu
 
 ## Usage
 
-Basic JavaScript example:
+REST API Wrapper Example:
 
 ```javascript
 import { ShallotAWS } from 'shallot';
 
-import { jsonBodyParser, databaseConnector, httpErrorHandler } from '<your middlewares>';
+import {
+  HTTPJSONBodyParser,
+  HTTPCors,
+  HTTPErrorHandler,
+  DoNotWaitForEmptyEventLoop,
+  Validator,
+} from 'shallot/dist/aws';
 
 const _handler = async (event, context) => {
   // Your handler code here
 };
 
 export const handler = ShallotAWS(handler)
-  .use(jsonBodyParser())
-  .use(databaseConnector())
-  .use(httpErrorHandler());
+  .use(HTTPJSONBodyParser())
+  .use(Validator({ inputSchema: myInputSchema, outputSchema: myOutputSchema }))
+  .use(HTTPCors())
+  .use(DoNotWaitForEmptyEventLoop())
+  .use(HTTPErrorHandler());
 ```
 
 ## How it Works
