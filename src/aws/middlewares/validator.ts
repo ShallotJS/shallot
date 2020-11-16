@@ -8,8 +8,8 @@ import type { ShallotMiddlewareWithOptions } from '../core';
 import Ajv from 'ajv';
 
 interface TShallotValidatorOptions extends Record<string, unknown> {
-  inputSchema: Record<string | number | symbol, unknown>;
-  outputSchema: Record<string | number | symbol, unknown>;
+  inputSchema?: Record<string | number | symbol, unknown>;
+  outputSchema?: Record<string | number | symbol, unknown>;
 }
 
 /**
@@ -28,34 +28,30 @@ const ShallotValidator: ShallotMiddlewareWithOptions<
   const ajvInst = new Ajv();
 
   return {
-    before: config?.inputSchema
-      ? async (request) => {
-          const validator = ajvInst.compile(config.inputSchema);
-          const valid = validator(request.event);
+    before: async (request) => {
+      if (config?.inputSchema == null) return;
+      const validator = ajvInst.compile(config.inputSchema);
+      const valid = validator(request.event);
 
-          if (!valid) {
-            const error = new createHttpError.BadRequest(
-              'Event object failed validation'
-            );
-            error.details = validator.errors;
-            throw error;
-          }
-        }
-      : undefined,
-    after: config?.outputSchema
-      ? async (request) => {
-          const validator = ajvInst.compile(config.outputSchema);
-          const valid = validator(request.response);
+      if (!valid) {
+        const error = new createHttpError.BadRequest('Event object failed validation');
+        error.details = validator.errors;
+        throw error;
+      }
+    },
+    after: async (request) => {
+      if (config?.outputSchema == null) return;
+      const validator = ajvInst.compile(config.outputSchema);
+      const valid = validator(request.response);
 
-          if (!valid) {
-            const error = new createHttpError.InternalServerError(
-              'Response object failed validation'
-            );
-            error.details = validator.errors;
-            throw error;
-          }
-        }
-      : undefined,
+      if (!valid) {
+        const error = new createHttpError.InternalServerError(
+          'Response object failed validation'
+        );
+        error.details = validator.errors;
+        throw error;
+      }
+    },
   };
 };
 
