@@ -97,6 +97,15 @@ event loop.
 import { DoNotWaitForEmptyEventLoop } from 'shallot/dist/aws';
 ```
 
+### validator
+
+Shallot middleware that disables the AWS Lambda
+event loop.
+
+```javascript
+import { Validator } from 'shallot/dist/aws';
+```
+
 ## Creating a Custom Middleware
 
 A middleware is an object that defines any of a `before`, `after`, `onError`, or `finally` block.
