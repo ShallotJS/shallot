@@ -6,6 +6,7 @@ type UnknownObject = Record<string | number | symbol, any> | string;
 
 interface ShallotRequest<TResult extends UnknownObject = UnknownObject> {
   context: Context;
+  args: unknown[];
   response?: TResult | void;
   error?: Error | HttpError;
 }
@@ -53,7 +54,7 @@ const executeMiddlewaresInChain = async <TResult extends UnknownObject = Unknown
  * @param handler the base lambda handler function
  * @return this, the wrapped handler.
  */
-function ShallotAZure<TResult extends UnknownObject = UnknownObject>(
+function ShallotAzure<TResult extends UnknownObject = UnknownObject>(
   handler: Handler
 ): ShallotHandler<TResult> {
   const middlewares: {
@@ -71,6 +72,7 @@ function ShallotAZure<TResult extends UnknownObject = UnknownObject>(
   const shallotHandler = async (context: Context, ...args: unknown[]) => {
     const request: ShallotRequest<TResult> = {
       context,
+      args,
       response: undefined,
       error: undefined,
     };
@@ -78,7 +80,7 @@ function ShallotAZure<TResult extends UnknownObject = UnknownObject>(
     try {
       await executeMiddlewaresInChain<TResult>(request, middlewares.before);
 
-      request.response = await handler(request.context, ...args);
+      request.response = await handler(request.context, ...request.args);
 
       await executeMiddlewaresInChain<TResult>(request, middlewares.after);
     } catch (error) {
