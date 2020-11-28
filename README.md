@@ -114,6 +114,12 @@ event loop.
 import { Validator } from 'shallot/dist/aws';
 ```
 
+## Wrappers
+
+You can export the type definition wrappers for convenience for the following
+
+- Lambda Authorizers
+
 ## Creating a Custom Middleware
 
 A middleware is an object that defines any of a `before`, `after`, `onError`, or `finally` block.
