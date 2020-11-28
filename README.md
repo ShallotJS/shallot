@@ -119,6 +119,8 @@ import { Validator } from 'shallot/dist/aws';
 You can export the type definition wrappers for convenience for the following
 
 - Lambda Authorizers
+- REST APIs
+- WebSocket APIs
 
 ## Creating a Custom Middleware
 
