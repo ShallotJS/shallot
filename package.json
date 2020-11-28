@@ -23,6 +23,7 @@
     "deploy": "yarn build && yarn publish"
   },
   "devDependencies": {
+    "@azure/functions": "^1.2.2",
     "@types/ajv": "^1.0.0",
     "@types/aws-lambda": "^8.10.64",
     "@types/content-type": "^1.1.3",

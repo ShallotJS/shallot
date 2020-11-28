@@ -167,3 +167,18 @@ The request object passed to each middleware at runtime has the following proper
   error, // Error object set before calling onError middlewares
 }
 ```
+
+## Experimental Azure Functions Support
+
+Accepting PR's from people more experienced with Azure if the current implementation
+does not cover all Azure Functions use cases.
+
+```javascript
+import { ShallotAzure } from 'shallot';
+
+const _handler = async (context, ...args) => {
+  // Your handler code here
+};
+
+export const handler = ShallotAzure(handler).use(MyAzureFunctionMiddleware());
+```
