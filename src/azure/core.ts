@@ -44,7 +44,7 @@ const executeMiddlewaresInChain = async <TResult extends UnknownObject = Unknown
 };
 
 /**
- * Shallot engine wrapper function for AWS Lambda handlers that
+ * Shallot engine wrapper function for Azure function handlers that
  * should be exported and called by lambda.
  *
  * Follows the builder pattern with a `use` function to apply
@@ -53,7 +53,7 @@ const executeMiddlewaresInChain = async <TResult extends UnknownObject = Unknown
  * @param handler the base lambda handler function
  * @return this, the wrapped handler.
  */
-function ShallotAWS<TResult extends UnknownObject = UnknownObject>(
+function ShallotAZure<TResult extends UnknownObject = UnknownObject>(
   handler: Handler
 ): ShallotHandler<TResult> {
   const middlewares: {
@@ -128,4 +128,4 @@ function ShallotAWS<TResult extends UnknownObject = UnknownObject>(
   return shallotHandler as ShallotHandler<TResult>;
 }
 
-export default ShallotAWS;
+export default ShallotAzure;
