@@ -29,6 +29,7 @@ jobs:
         with:
           node-version: 12
           always-auth: true
+          registry-url: 'https://registry.npmjs.org'
       - run: git config --global user.name "GitHub CD bot"
       - run: git config --global user.email "github-cd-bot@example.com"
       - run: yarn
