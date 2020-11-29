@@ -11,7 +11,9 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v2      
+        with:
+          ref: ${{ github.event.release.target_commitish }}
       - uses: actions/setup-node@v1
         with:
           node-version: 12
@@ -37,6 +39,6 @@ jobs:
         env:
           github-token: ${{ secrets.GITHUB_TOKEN }}
       - run: yarn build
-      - run: yarn publish --tag ${{ github.event.release.target_commitish }}
+      - run: yarn publish
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
