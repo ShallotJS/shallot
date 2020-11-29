@@ -20,7 +20,8 @@
   "scripts": {
     "build": "rm -rf dist && tsc",
     "test": "jest",
-    "deploy": "yarn build && yarn publish"
+    "deploy": "yarn build && yarn publish",
+    "postversion": "git push && git push --tags"
   },
   "devDependencies": {
     "@azure/functions": "^1.2.2",
