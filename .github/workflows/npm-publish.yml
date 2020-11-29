@@ -28,6 +28,7 @@ jobs:
       - uses: actions/setup-node@v1
         with:
           node-version: 12
+          always-auth: true
       - run: git config --global user.name "GitHub CD bot"
       - run: git config --global user.email "github-cd-bot@example.com"
       - run: yarn
@@ -37,4 +38,4 @@ jobs:
       - run: yarn build
       - run: yarn publish --tag ${{ github.event.release.target_commitish }}
         env:
-          NODE_AUTH_TOKEN: ${{secrets.npm_token}}
+          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
