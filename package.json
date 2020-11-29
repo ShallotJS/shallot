@@ -20,7 +20,6 @@
   "scripts": {
     "build": "rm -rf dist && tsc",
     "test": "jest",
-    "deploy": "yarn build && yarn publish",
     "postversion": "git push && git push --tags"
   },
   "devDependencies": {
