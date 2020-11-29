@@ -18,7 +18,7 @@ jobs:
       - run: yarn
       - run: yarn test
   
-  build:
+  publish:
     needs: [test]
     runs-on: ubuntu-latest
     steps:
@@ -34,17 +34,6 @@ jobs:
       - run: yarn version --new-version ${{ github.event.release.tag_name }}
         env:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-
-  publish-npm:
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v1
-        with:
-          node-version: 12
-          registry-url: https://registry.npmjs.org/
-      - run: yarn
       - run: yarn build
       - run: yarn publish --tag ${{ github.event.release.target_commitish }}
         env:
