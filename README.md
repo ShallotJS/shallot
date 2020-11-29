@@ -2,6 +2,8 @@
 
 # Shallot
 
+![Shallot Package Release](https://github.com/ShallotJS/shallot/workflows/Shallot%20Package%20Release/badge.svg)
+
 A middleware framework for serverless functions written in TypeScript or JavaScript.
 
 Inspired by [Express.js](http://expressjs.com/) and [Middy.js](https://middy.js.org/)
