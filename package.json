@@ -25,6 +25,7 @@
   "devDependencies": {
     "@azure/functions": "^1.2.2",
     "@types/aws-lambda": "^8.10.64",
+    "@types/http-errors": "^1.8.0",
     "@types/jest": "^26.0.15",
     "@types/node": "^14.14.2",
     "@typescript-eslint/eslint-plugin": "^4.5.0",
