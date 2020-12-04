@@ -92,7 +92,7 @@ describe('ShallotAWS Core', () => {
     expect(basicMiddleware.onError).not.toHaveBeenCalled();
   });
 
-  test('onError middleware that throws an error terminates runtime', async () => {
+  test('onError middleware that throws an error goes uncaught', async () => {
     const badMiddlewareHandler: ShallotMiddlewareHandler = async () => {
       throw new Error();
     };
@@ -105,12 +105,35 @@ describe('ShallotAWS Core', () => {
 
     const wrappedHandler = ShallotAWS(mockHandlerWithError).use(badMiddleware);
 
-    await wrappedHandler(undefined, mockContext, jest.fn());
+    await expect(async () => {
+      await wrappedHandler(undefined, mockContext, jest.fn());
+    }).rejects.toThrowError();
 
     expect(badMiddleware.before).toHaveBeenCalledTimes(1);
     expect(badMiddleware.onError).toHaveBeenCalledTimes(1);
     expect(badMiddleware.after).not.toHaveBeenCalled();
     expect(badMiddleware.finally).not.toHaveBeenCalled();
+  });
+
+  test('onError middleware chain terminates from setting __handledError', async () => {
+    const handledErrorMiddlewareHandler: ShallotMiddlewareHandler = async (request) => {
+      request.__handledError = true;
+    };
+    const handledErrorMiddleware: ShallotMiddleware<unknown, string> = {
+      onError: jest.fn(handledErrorMiddlewareHandler),
+    };
+    const basicMiddleware: ShallotMiddleware<unknown, string> = {
+      onError: jest.fn(basicMiddlewareHandler),
+    };
+
+    const wrappedHandler = ShallotAWS(mockHandlerWithError)
+      .use(handledErrorMiddleware)
+      .use(basicMiddleware);
+
+    await wrappedHandler(undefined, mockContext, jest.fn());
+
+    expect(handledErrorMiddleware.onError).toHaveBeenCalledTimes(1);
+    expect(basicMiddleware.onError).not.toHaveBeenCalled();
   });
 
   test('Execution order of multiple middlewares', async () => {
