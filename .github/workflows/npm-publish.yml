@@ -22,9 +22,7 @@ jobs:
         run: yarn install
 
       - name: Run unit tests
-        uses: mattallty/jest-github-action@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: yarn test
 
   publish:
     needs: [test]
