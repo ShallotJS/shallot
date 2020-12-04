@@ -10,8 +10,7 @@
     "skipLibCheck": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "strict": true,
-    "baseUrl": "./src"
+    "strict": true
   },
   "include": ["src"]
 }
