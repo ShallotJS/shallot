@@ -36,13 +36,11 @@ REST API Wrapper Example:
 ```javascript
 import { ShallotAWS } from 'shallot';
 
-import {
-  HTTPJSONBodyParser,
-  HTTPCors,
-  HTTPErrorHandler,
-  DoNotWaitForEmptyEventLoop,
-  Validator,
-} from 'shallot/dist/aws';
+import { HTTPJSONBodyParser } from '@shallot/http-json-body-parser';
+import { HTTPCors } from '@shallot/http-cors';
+import { HTTPErrorHandler } from '@shallot/http-error-handler';
+import { DoNotWaitForEmptyEventLoop } from '@shallot/do-not-wait-for-empty-event-loop';
+import { Validator } from '@shallot/validator';
 
 const _handler = async (event, context) => {
   // Your handler code here
@@ -59,6 +57,7 @@ export const handler = ShallotAWS(handler)
 ## How it Works
 
 ![Middleware onion](https://middy.js.org/img/middy-middleware-engine.png)
+
 \*\*Artwork credit: [Middy.js](https://middy.js.org/)
 
 Middlewares are applied as layers that can execute before and after. This loosely
@@ -76,7 +75,7 @@ Shallot middleware that parses and replaces the JSON body of HTTP request bodies
 Requires the Content-Type header to be properly set.
 
 ```javascript
-import { HTTPJSONBodyParser } from 'shallot/dist/aws';
+import { HTTPJSONBodyParser } from '@shallot/http-json-body-parser';
 ```
 
 ### http-cors
@@ -85,7 +84,7 @@ Shallot middleware that handles the setting of response CORS headers according
 to the MSDN spec. https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS
 
 ```javascript
-import { HTTPCors } from 'shallot/dist/aws';
+import { HTTPCors } from '@shallot/http-cors';
 ```
 
 ### http-error-handler
@@ -95,7 +94,7 @@ http-errors npm module and returns the corresponding status
 code in the response.
 
 ```javascript
-import { HTTPErrorHandler } from 'shallot/dist/aws';
+import { HTTPErrorHandler } from '@shallot/http-error-handler';
 ```
 
 ### do-not-wait-for-empty-event-loop
@@ -104,7 +103,7 @@ Shallot middleware that disables the AWS Lambda
 event loop.
 
 ```javascript
-import { DoNotWaitForEmptyEventLoop } from 'shallot/dist/aws';
+import { DoNotWaitForEmptyEventLoop } from '@shallot/do-not-wait-for-empty-event-loop';
 ```
 
 ### validator
@@ -113,7 +112,7 @@ Shallot middleware that disables the AWS Lambda
 event loop.
 
 ```javascript
-import { Validator } from 'shallot/dist/aws';
+import { Validator } from '@shallot/validator';
 ```
 
 ## Wrappers
@@ -175,6 +174,7 @@ The request object passed to each middleware at runtime has the following proper
   context, // The lambda runtime context object
   response, // The user-defined response
   error, // Error object set before calling onError middlewares
+  __handledError, // If true, allows skipping of remaining onError middlewares
 }
 ```
 
