@@ -3,3 +3,4 @@ coverage
 .*ignore
 yarn*
 dist
+.github
