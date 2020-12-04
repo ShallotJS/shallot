@@ -1,0 +1,16 @@
+tests
+coverage
+jest.config.ts
+
+.github
+
+*.md
+
+.huskyrc.json
+.lintstagedrc.json
+.eslintignore
+.eslintrc.json
+.prettierignore
+.prettierrc.json
+
+yarn-error.log
