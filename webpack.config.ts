@@ -6,7 +6,11 @@ import nodeExternals from 'webpack-node-externals';
 const config: Configuration = {
   mode: 'production',
   target: 'node',
-  entry: './src/index.ts',
+  entry: {
+    index: './src/index.ts',
+    'aws/index': './src/aws/index.ts',
+    'azure/index': './src/azure/index.ts',
+  },
   module: {
     rules: [
       {
@@ -19,7 +23,8 @@ const config: Configuration = {
     extensions: ['.ts', '.js'],
   },
   output: {
-    filename: 'index.js',
+    libraryTarget: 'commonjs',
+    filename: '[name].js',
     path: path.resolve(__dirname, 'dist'),
   },
   devtool: 'source-map',
