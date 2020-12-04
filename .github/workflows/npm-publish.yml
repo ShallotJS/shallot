@@ -8,34 +8,56 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - name: Check out Git repository
+        uses: actions/checkout@v2
         with:
           ref: ${{ github.event.release.target_commitish }}
-      - uses: actions/setup-node@v1
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v1
         with:
           node-version: 12
-      - run: yarn
-      - run: yarn test
+
+      - name: Install dependencies
+        run: yarn install
+
+      - name: Run unit tests
+        uses: mattallty/jest-github-action@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   publish:
     needs: [test]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - name: Check out Git repository
+        uses: actions/checkout@v2
         with:
           ref: ${{ github.event.release.target_commitish }}
-      - uses: actions/setup-node@v1
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v1
         with:
           node-version: 12
-          always-auth: true
-          registry-url: 'https://registry.npmjs.org'
-      - run: git config --global user.name "GitHub CD bot"
-      - run: git config --global user.email "github-cd-bot@example.com"
-      - run: yarn
-      - run: yarn version --new-version ${{ github.event.release.tag_name }}
+
+      - name: Install dependencies
+        run: yarn install
+
+      - name: Set bot git config name
+        run: git config --global user.name "GitHub CD bot"
+
+      - name: Set bot git config email
+        run: git config --global user.email "github-cd-bot@example.com"
+
+      - name: Create a new release version
+        run: yarn version --new-version ${{ github.event.release.tag_name }}
         env:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-      - run: yarn build
-      - run: yarn publish
+
+      - name: Build a prod version
+        run: yarn build
+
+      - name: Publish to NPM
+        run: yarn publish
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
