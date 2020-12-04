@@ -14,6 +14,8 @@ interface ShallotRequest<
   context: Context;
   response?: TResult | void;
   error?: Error | HttpError;
+  /** If true, skips remaining onError middlewares. */
+  __handledError?: boolean;
 }
 
 export interface ShallotMiddlewareHandler<
@@ -63,6 +65,22 @@ const executeMiddlewaresInChain = async <
   }
 };
 
+const executeErrorMiddlewaresInChain = async <
+  TEvent = unknown,
+  TResult extends UnknownObject = UnknownObject
+>(
+  request: ShallotRequest<TEvent, TResult>,
+  middlewares: ShallotMiddlewareHandler<TEvent, TResult>[]
+): Promise<void> => {
+  for (const middleware of middlewares) {
+    if (request.__handledError) {
+      break;
+    }
+
+    await middleware(request);
+  }
+};
+
 /**
  * Shallot engine wrapper function for AWS Lambda handlers that
  * should be exported and called by lambda.
@@ -92,8 +110,6 @@ function ShallotAWS<TEvent = unknown, TResult extends UnknownObject = UnknownObj
     const request: ShallotRequest<TEvent, TResult> = {
       event,
       context,
-      response: undefined,
-      error: undefined,
     };
 
     try {
@@ -103,12 +119,8 @@ function ShallotAWS<TEvent = unknown, TResult extends UnknownObject = UnknownObj
 
       await executeMiddlewaresInChain<TEvent, TResult>(request, middlewares.after);
     } catch (error) {
-      try {
-        request.error = error;
-        await executeMiddlewaresInChain<TEvent, TResult>(request, middlewares.onError);
-      } catch (_) {
-        return request.error;
-      }
+      request.error = error;
+      await executeErrorMiddlewaresInChain<TEvent, TResult>(request, middlewares.onError);
     }
 
     await executeMiddlewaresInChain<TEvent, TResult>(request, middlewares.finally);
