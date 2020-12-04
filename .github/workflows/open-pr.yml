@@ -21,12 +21,11 @@ jobs:
       - name: Install dependencies
         run: yarn install
 
-      - name: Run linters
-        uses: wearerequired/lint-action@v1
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          eslint: true
-          prettier: true
+      - name: Run eslint
+        run: yarn eslint
+
+      - name: Run prettier
+        run: yarn prettier -c .
 
   test:
     runs-on: ubuntu-latest
