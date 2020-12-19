@@ -1,8 +1,10 @@
-# 🚨 Work in Progress 🚨
-
 # Shallot
 
+[![npm version](https://badge.fury.io/js/shallot.svg)](https://badge.fury.io/js/shallot)
 ![Shallot Package Release](https://github.com/ShallotJS/shallot/workflows/Shallot%20Package%20Release/badge.svg)
+[![Known Vulnerabilities](https://snyk.io/test/github/ShallotJS/shallot/badge.svg?targetFile=package.json)](https://snyk.io/test/github/ShallotJS/shallot?targetFile=package.json)
+[![Language grade: JavaScript](https://img.shields.io/lgtm/grade/javascript/g/ShallotJS/shallot.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/ShallotJS/shallot/context:javascript)
+[![TypeScript](https://img.shields.io/badge/%3C%2F%3E-TypeScript-%230074c1.svg)](http://www.typescriptlang.org/)
 
 A middleware framework for serverless functions written in TypeScript or JavaScript.
 
@@ -17,7 +19,10 @@ Inspired by [Express.js](http://expressjs.com/) and [Middy.js](https://middy.js.
 ### Drawbacks from middy
 
 - Only supports promise based handlers/middleware with async/await
+
   \*\*This is an intentional decision to allow for the simplified codebase and faster execution
+
+- Less robust third party middleware options
 
 ## Installation
 
@@ -39,8 +44,6 @@ import { ShallotAWS } from 'shallot';
 import { HTTPJSONBodyParser } from '@shallot/http-json-body-parser';
 import { HTTPCors } from '@shallot/http-cors';
 import { HTTPErrorHandler } from '@shallot/http-error-handler';
-import { DoNotWaitForEmptyEventLoop } from '@shallot/do-not-wait-for-empty-event-loop';
-import { Validator } from '@shallot/validator';
 
 const _handler = async (event, context) => {
   // Your handler code here
@@ -48,9 +51,7 @@ const _handler = async (event, context) => {
 
 export const handler = ShallotAWS(handler)
   .use(HTTPJSONBodyParser())
-  .use(Validator({ inputSchema: myInputSchema, outputSchema: myOutputSchema }))
   .use(HTTPCors())
-  .use(DoNotWaitForEmptyEventLoop())
   .use(HTTPErrorHandler());
 ```
 
@@ -96,32 +97,6 @@ code in the response.
 ```javascript
 import { HTTPErrorHandler } from '@shallot/http-error-handler';
 ```
-
-### do-not-wait-for-empty-event-loop
-
-Shallot middleware that disables the AWS Lambda
-event loop.
-
-```javascript
-import { DoNotWaitForEmptyEventLoop } from '@shallot/do-not-wait-for-empty-event-loop';
-```
-
-### validator
-
-Shallot middleware that disables the AWS Lambda
-event loop.
-
-```javascript
-import { Validator } from '@shallot/validator';
-```
-
-## Wrappers
-
-You can export the type definition wrappers for convenience for the following
-
-- Lambda Authorizers
-- REST APIs
-- WebSocket APIs
 
 ## Creating a Custom Middleware
 
