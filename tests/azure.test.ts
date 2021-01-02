@@ -1,4 +1,4 @@
-import type { ShallotMiddlewareHandler, ShallotMiddleware } from '../src/azure/core';
+import type { ShallotAzureMiddlewareHandler, ShallotAzureMiddleware } from '../src/azure';
 import type { AzureFunction as Handler, Context, Logger } from '@azure/functions';
 
 import { test, describe, jest, expect } from '@jest/globals';
@@ -28,10 +28,10 @@ describe('ShallotAzure Core', () => {
   const mockHandlerWithError: Handler = async () => {
     throw new Error();
   };
-  const basicMiddlewareHandler: ShallotMiddlewareHandler = async () => undefined;
+  const basicMiddlewareHandler: ShallotAzureMiddlewareHandler = async () => undefined;
 
   test('Handler executes', async () => {
-    const wrappedHandler = ShallotAzure(mockHandler);
+    const wrappedHandler = ShallotAzure.ShallotAzure(mockHandler);
 
     const res = await wrappedHandler(mockContext);
 
@@ -39,13 +39,13 @@ describe('ShallotAzure Core', () => {
   });
 
   test('Handler executes with before/after/finally middleware', async () => {
-    const basicMiddleware: ShallotMiddleware = {
+    const basicMiddleware: ShallotAzureMiddleware = {
       before: jest.fn(basicMiddlewareHandler),
       after: jest.fn(basicMiddlewareHandler),
       finally: jest.fn(basicMiddlewareHandler),
     };
 
-    const wrappedHandler = ShallotAzure(mockHandler).use(basicMiddleware);
+    const wrappedHandler = ShallotAzure.ShallotAzure(mockHandler).use(basicMiddleware);
 
     const res = await wrappedHandler(mockContext);
 
@@ -56,14 +56,16 @@ describe('ShallotAzure Core', () => {
   });
 
   test('onError middleware triggered during handler runtime exception', async () => {
-    const basicMiddleware: ShallotMiddleware = {
+    const basicMiddleware: ShallotAzureMiddleware = {
       before: jest.fn(basicMiddlewareHandler),
       after: jest.fn(basicMiddlewareHandler),
       finally: jest.fn(basicMiddlewareHandler),
       onError: jest.fn(basicMiddlewareHandler),
     };
 
-    const wrappedHandler = ShallotAzure(mockHandlerWithError).use(basicMiddleware);
+    const wrappedHandler = ShallotAzure.ShallotAzure(mockHandlerWithError).use(
+      basicMiddleware
+    );
 
     await wrappedHandler(mockContext);
 
@@ -74,11 +76,11 @@ describe('ShallotAzure Core', () => {
   });
 
   test('onError middleware not triggered during handler runtime', async () => {
-    const basicMiddleware: ShallotMiddleware = {
+    const basicMiddleware: ShallotAzureMiddleware = {
       onError: jest.fn(basicMiddlewareHandler),
     };
 
-    const wrappedHandler = ShallotAzure(mockHandler).use(basicMiddleware);
+    const wrappedHandler = ShallotAzure.ShallotAzure(mockHandler).use(basicMiddleware);
 
     await wrappedHandler(mockContext);
 
@@ -86,17 +88,19 @@ describe('ShallotAzure Core', () => {
   });
 
   test('onError middleware that throws an error terminates runtime', async () => {
-    const badMiddlewareHandler: ShallotMiddlewareHandler = async () => {
+    const badMiddlewareHandler: ShallotAzureMiddlewareHandler = async () => {
       throw new Error();
     };
-    const badMiddleware: ShallotMiddleware = {
+    const badMiddleware: ShallotAzureMiddleware = {
       before: jest.fn(basicMiddlewareHandler),
       after: jest.fn(basicMiddlewareHandler),
       onError: jest.fn(badMiddlewareHandler),
       finally: jest.fn(basicMiddlewareHandler),
     };
 
-    const wrappedHandler = ShallotAzure(mockHandlerWithError).use(badMiddleware);
+    const wrappedHandler = ShallotAzure.ShallotAzure(mockHandlerWithError).use(
+      badMiddleware
+    );
 
     await wrappedHandler(mockContext);
 
@@ -112,7 +116,7 @@ describe('ShallotAzure Core', () => {
     const before2 = jest.fn(basicMiddlewareHandler);
     const after2 = jest.fn(basicMiddlewareHandler);
 
-    const wrappedHandler = ShallotAzure(mockHandler)
+    const wrappedHandler = ShallotAzure.ShallotAzure(mockHandler)
       .use({ before: before1, after: after1 })
       .use({ before: before2, after: after2 });
 

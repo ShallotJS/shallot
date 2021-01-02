@@ -1,4 +1,2 @@
-import ShallotAWS from './aws';
-import ShallotAzure from './azure';
-
-export { ShallotAWS, ShallotAzure };
+export * as ShallotAWS from './aws';
+export * as ShallotAzure from './azure';
