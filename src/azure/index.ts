@@ -1,4 +1,4 @@
 import * as ShallotAzure from './core';
 
-export { ShallotAzure };
+export * from './core';
 export default ShallotAzure.default;

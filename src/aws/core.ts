@@ -1,8 +1,6 @@
 import type { Callback, Context, Handler } from 'aws-lambda';
 import type { HttpError } from 'http-errors';
 
-type TCallback = Callback<unknown>;
-
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type UnknownObject = Record<string | number | symbol, any> | string;
 
@@ -47,7 +45,7 @@ export interface ShallotHandler<
   TEvent = unknown,
   TResult extends UnknownObject = UnknownObject
 > extends Handler<TEvent, TResult> {
-  (event: TEvent, context: Context, callback: TCallback): Promise<TResult>;
+  (event: TEvent, context: Context, callback: Callback<TResult>): Promise<TResult>;
   use: (
     middleware: ShallotMiddleware<TEvent, TResult>
   ) => ShallotHandler<TEvent, TResult>;
@@ -106,7 +104,11 @@ function ShallotAWS<TEvent = unknown, TResult extends UnknownObject = UnknownObj
     finally: [],
   };
 
-  const shallotHandler = async (event: TEvent, context: Context, callback: TCallback) => {
+  const shallotHandler = async (
+    event: TEvent,
+    context: Context,
+    callback: Callback<TResult>
+  ) => {
     const request: ShallotRequest<TEvent, TResult> = {
       event,
       context,
