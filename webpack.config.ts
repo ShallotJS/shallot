@@ -28,7 +28,8 @@ const config: Configuration = {
     path: path.resolve(__dirname, 'dist'),
   },
   devtool: 'source-map',
-  externals: [nodeExternals()],
+  // Type definitions are broke on webpack-node-externals
+  externals: [nodeExternals() as any],
 };
 
 export default config;
