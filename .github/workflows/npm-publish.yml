@@ -6,6 +6,7 @@ on:
 
 jobs:
   test:
+    name: Run unit tests
     runs-on: ubuntu-latest
     steps:
       - name: Check out Git repository
@@ -19,12 +20,13 @@ jobs:
           node-version: 12
 
       - name: Install dependencies
-        run: yarn install
+        run: yarn install --frozen-lockfile
 
       - name: Run unit tests
         run: yarn test
 
   publish:
+    name: Publish to NPM
     needs: [test]
     runs-on: ubuntu-latest
     steps:
@@ -41,7 +43,7 @@ jobs:
           registry-url: 'https://registry.npmjs.org'
 
       - name: Install dependencies
-        run: yarn install
+        run: yarn install --frozen-lockfile
 
       - name: Set bot git config name
         run: git config --global user.name "GitHub CD bot"
