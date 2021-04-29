@@ -12,5 +12,5 @@
     "noUnusedParameters": true,
     "strict": true
   },
-  "include": ["src"]
+  "include": ["src", "webpack.config.ts", "jest.config.ts"]
 }
