@@ -1,6 +1,6 @@
 {
   "name": "shallot",
-  "version": "1.2.3",
+  "version": "1.2.4",
   "description": "A robust middleware framework for Serverless REST APIs",
   "keywords": [
     "middleware",
