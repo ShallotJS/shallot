@@ -49,7 +49,7 @@ const _handler = async (event, context) => {
   // Your handler code here
 };
 
-export const handler = ShallotAWS(handler)
+export const handler = ShallotAWS.ShallotAWS(handler)
   .use(HTTPJSONBodyParser())
   .use(HTTPCors())
   .use(HTTPErrorHandler());

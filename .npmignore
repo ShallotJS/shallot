@@ -16,3 +16,6 @@ jest.config.ts
 yarn-error.log
 
 src
+
+webpack.config.ts
+tsconfig.json
